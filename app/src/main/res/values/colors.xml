@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#313131</color>
+    <color name="colorPrimaryDark">#202020</color>
+    <color name="colorAccent">#fff</color>
+
+    <color name="divider">#67ffffff</color>
+    <color name="up">#81FF6B</color>
+    <color name="down">#FF7276</color>
+
+    <color name="darkTint">#84000000</color>
+</resources>
