@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.cloudinary.android.MediaManager;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -27,12 +28,21 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private CoinMarketCapService mService;
     private Context mContext;
+    public static boolean didInit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         mContext = this;
+
+        if (!MainActivity.didInit) {
+            MediaManager.init(mContext);
+            MainActivity.didInit = true;
+        }
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 

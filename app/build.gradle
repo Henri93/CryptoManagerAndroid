@@ -36,8 +36,9 @@ dependencies {
     // recyclerview
     compile 'com.android.support:recyclerview-v7:26.0.1'
 
-    //image
+    //image and svg
     compile group: 'com.cloudinary', name: 'cloudinary-android', version: '1.20.0'
     compile 'com.github.bumptech.glide:glide:3.8.0'
+    compile 'com.caverock:androidsvg:1.2.1'
 
 }

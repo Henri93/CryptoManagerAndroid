@@ -1,11 +1,22 @@
 package henrygarant.com.cryptomanager;
 
+import android.graphics.drawable.PictureDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.GenericRequestBuilder;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.model.StreamEncoder;
+import com.bumptech.glide.load.resource.file.FileToStreamDecoder;
+import com.caverock.androidsvg.SVG;
+import com.cloudinary.android.MediaManager;
 import com.google.gson.Gson;
 
+import java.io.InputStream;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -23,6 +34,7 @@ public class ClickedAssetActivity extends AppCompatActivity {
     private TextView pc7d;
     private TextView marketCap;
     private TextView vol24H;
+    private ImageView image;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +49,7 @@ public class ClickedAssetActivity extends AppCompatActivity {
         pc7d = (TextView)findViewById(R.id.clickedPC7D);
         marketCap = (TextView)findViewById(R.id.clickedMarketCap);
         vol24H = (TextView)findViewById(R.id.clicked24HVol);
+        image = (ImageView) findViewById(R.id.clickedImage);
 
         String jsonMyObject = null;
         Bundle extras = getIntent().getExtras();
@@ -69,6 +82,26 @@ public class ClickedAssetActivity extends AppCompatActivity {
 
             marketCap.setText("Market Cap: $" + marketCapString);
             vol24H.setText("24H Vol: $" + vol24hString);
+
+            GenericRequestBuilder<Uri, InputStream, SVG, PictureDrawable> requestBuilder;
+            requestBuilder = Glide.with(this)
+                    .using(Glide.buildStreamModelLoader(Uri.class, this), InputStream.class)
+                    .from(Uri.class)
+                    .as(SVG.class)
+                    .transcode(new SvgDrawableTranscoder(), PictureDrawable.class)
+                    .sourceEncoder(new StreamEncoder())
+                    .cacheDecoder(new FileToStreamDecoder<SVG>(new SvgDecoder()))
+                    .decoder(new SvgDecoder())
+                    .placeholder(R.drawable.ic_launcher_foreground)
+                    .error(R.drawable.ic_launcher_background)
+                    .animate(android.R.anim.fade_in)
+                    .listener(new SvgSoftwareLayerSetter<Uri>());
+            Uri uri = Uri.parse(MediaManager.get().url().generate(TickerURL.getImgURL(item.getSymbol())));
+            requestBuilder
+                    .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                    // SVG cannot be serialized so it's not worth to cache it
+                    .load(uri)
+                    .into(image);
         }
     }
 }

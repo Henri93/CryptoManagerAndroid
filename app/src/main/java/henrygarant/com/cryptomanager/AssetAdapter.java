@@ -1,6 +1,8 @@
 package henrygarant.com.cryptomanager;
 
 import android.content.Context;
+import android.graphics.drawable.PictureDrawable;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +10,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.GenericRequestBuilder;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.model.StreamEncoder;
+import com.bumptech.glide.load.resource.file.FileToStreamDecoder;
+import com.caverock.androidsvg.SVG;
+import com.cloudinary.android.MediaManager;
+
+import java.io.InputStream;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
@@ -57,7 +68,7 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
         mItems = posts;
         mContext = context;
         mItemListener = itemListener;
-        //MediaManager.init(mContext);
+
     }
 
     @Override
@@ -94,6 +105,26 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
         Asset.percentColor(mContext, holder.pc1HTv);
         Asset.percentColor(mContext, holder.pc24HTv);
         Asset.percentColor(mContext, holder.pc7DTv);
+
+        GenericRequestBuilder<Uri, InputStream, SVG, PictureDrawable> requestBuilder;
+        requestBuilder = Glide.with(mContext)
+                .using(Glide.buildStreamModelLoader(Uri.class, mContext), InputStream.class)
+                .from(Uri.class)
+                .as(SVG.class)
+                .transcode(new SvgDrawableTranscoder(), PictureDrawable.class)
+                .sourceEncoder(new StreamEncoder())
+                .cacheDecoder(new FileToStreamDecoder<SVG>(new SvgDecoder()))
+                .decoder(new SvgDecoder())
+                .placeholder(R.drawable.ic_launcher_foreground)
+                .error(R.drawable.ic_launcher_background)
+                .animate(android.R.anim.fade_in)
+                .listener(new SvgSoftwareLayerSetter<Uri>());
+        Uri uri = Uri.parse(MediaManager.get().url().generate(TickerURL.getImgURL(item.getSymbol())));
+        requestBuilder
+                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                // SVG cannot be serialized so it's not worth to cache it
+                .load(uri)
+                .into(holder.image);
 
         //Glide.with(mContext).load(MediaManager.get().url().generate("zec_n7gtk8.svg")).into(holder.image);
 
