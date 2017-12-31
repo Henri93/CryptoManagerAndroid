@@ -3,6 +3,7 @@ package henrygarant.com.cryptomanager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.cloudinary.android.MediaManager;
 import com.google.gson.Gson;
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     private AssetAdapter mAdapter;
     private RecyclerView mRecyclerView;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private CoinMarketCapService mService;
     private Context mContext;
     public static boolean didInit;
@@ -48,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
 
         mService = ApiUtils.getCoinMarketCapService();
         mRecyclerView = (RecyclerView) findViewById(R.id.assetList);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
+
         mAdapter = new AssetAdapter(this, new ArrayList<Asset>(0), new AssetAdapter.PostItemListener() {
 
             @Override
@@ -57,6 +62,14 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("clickedAsset", new Gson().toJson(clickedAsset));
                 Log.d("Main Activity", "clicked " + clickedAsset.getName());
                 mContext.startActivity(intent);
+            }
+        });
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Refresh items
+                refreshItems();
             }
         });
 
@@ -73,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        //getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
@@ -114,4 +127,29 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    void refreshItems() {
+        // Load items
+        // ...
+        loadAnswers();
+        // Load complete
+        Toast.makeText(mContext, "Assets Loaded", Toast.LENGTH_SHORT);
+        Log.d("Main Activity", "assets loaded");
+        onItemsLoadComplete();
+    }
+
+    void onItemsLoadComplete() {
+        // Update the adapter and notify data set changed
+        // ...
+
+        // Stop refresh animation
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshItems();
+    }
+
 }
