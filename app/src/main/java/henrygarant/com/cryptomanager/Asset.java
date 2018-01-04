@@ -1,17 +1,20 @@
 package henrygarant.com.cryptomanager;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.widget.TextView;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.Comparator;
 
 /**
  * Created by henry_000 on 12/29/2017.
  */
 
 
-public class Asset {
+public class Asset implements Comparable<Asset> {
 
     @SerializedName("id")
     @Expose
@@ -189,4 +192,63 @@ public class Asset {
         }
     }
 
+    @Override
+    public int compareTo(@NonNull Asset o) {
+        Double thisPrice = Double.parseDouble(this.getPriceUsd());
+        Double thatPrice = Double.parseDouble(o.getPriceUsd());
+        return Double.compare(thatPrice, thatPrice);
+    }
+
+    public static Comparator<Asset> rankComparator = new Comparator<Asset>() {
+        @Override
+        public int compare(Asset a1, Asset a2) {
+            Double thisChange = Double.parseDouble(a1.getRank());
+            Double thatChange = Double.parseDouble(a2.getRank());
+            return Double.compare(thisChange, thatChange);
+        }
+    };
+
+    public static Comparator<Asset> hourPriceChangeComparator = new Comparator<Asset>() {
+        @Override
+        public int compare(Asset a1, Asset a2) {
+            Double thisChange = Double.parseDouble(a1.getPercentChange1h());
+            Double thatChange = Double.parseDouble(a2.getPercentChange1h());
+            return Double.compare(thatChange, thisChange);
+        }
+    };
+
+    public static Comparator<Asset> dayPriceChangeComparator = new Comparator<Asset>() {
+        @Override
+        public int compare(Asset a1, Asset a2) {
+            Double thisChange = Double.parseDouble(a1.getPercentChange24h());
+            Double thatChange = Double.parseDouble(a2.getPercentChange24h());
+            return Double.compare(thatChange, thisChange);
+        }
+    };
+
+    public static Comparator<Asset> weekPriceChangeComparator = new Comparator<Asset>() {
+        @Override
+        public int compare(Asset a1, Asset a2) {
+            Double thisChange = Double.parseDouble(a1.getPercentChange7d());
+            Double thatChange = Double.parseDouble(a2.getPercentChange7d());
+            return Double.compare(thatChange, thisChange);
+        }
+    };
+
+    public static Comparator<Asset> getComparator(long id) {
+        Comparator<Asset> comparator;
+        if (id == 1) {
+            comparator = Asset.hourPriceChangeComparator;
+        } else if (id == 2) {
+            comparator = Asset.dayPriceChangeComparator;
+        } else if (id == 3) {
+            comparator = Asset.weekPriceChangeComparator;
+        } else {
+            comparator = Asset.rankComparator;
+        }
+        currentComparator = comparator;
+        return currentComparator;
+    }
+
+    public static Comparator<Asset> currentComparator = Asset.rankComparator;
 }

@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">CryptoManager</string>
     <string name="action_settings">Settings</string>
+
+    <array name="sorts">
+        <item>Rank</item>
+        <item>1H Price Change</item>
+        <item>24H Price Change</item>
+        <item>7D Price Change</item>
+    </array>
 </resources>

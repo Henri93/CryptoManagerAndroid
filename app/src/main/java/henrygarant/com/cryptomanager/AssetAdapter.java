@@ -20,6 +20,7 @@ import com.cloudinary.android.MediaManager;
 
 import java.io.InputStream;
 import java.text.NumberFormat;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -137,6 +138,12 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
 
     public void updateAnswers(List<Asset> items) {
         mItems = items;
+        Collections.sort(mItems, Asset.currentComparator);
+        notifyDataSetChanged();
+    }
+
+    public void sortAnswers(long id) {
+        Collections.sort(mItems, Asset.getComparator(id));
         notifyDataSetChanged();
     }
 
