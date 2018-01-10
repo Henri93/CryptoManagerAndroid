@@ -37,6 +37,11 @@ public class TickerURL {
         tickers.put("LSK", "lsk_wiqmrl.svg");
         tickers.put("USDT", "usdt_ukuamc.svg");
         tickers.put("BTS", "bts_eh8bcj.svg");
+        tickers.put("XRB", "xrb_bxnc0l.svg");
+        tickers.put("XVG", "xvg_xblyaz.svg");
+        tickers.put("BCN", "bcn_shmrfj.svg");
+        tickers.put("SC", "sc_r9wvwn.svg");
+        tickers.put("ICX", "icx_mkskjs.svg");
     }
 
     public static String getImgURL(String ticker) {
