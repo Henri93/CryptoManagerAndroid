@@ -4,6 +4,7 @@ import android.graphics.drawable.PictureDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -65,8 +66,15 @@ public class ClickedAssetActivity extends AppCompatActivity {
             name.setText(item.getName());
             ticker.setText(item.getSymbol());
 
-            String priceString = String.format("%.3f", Double.parseDouble(item.getPriceUsd()));
-            priceString = numberFormat.format(Double.parseDouble(priceString));
+            String priceString = "0.00";
+
+            try{
+                priceString = String.format("%.3f", Double.parseDouble(item.getPriceUsd()));
+                priceString = numberFormat.format(Double.parseDouble(priceString));
+            }catch (NumberFormatException e){
+                Log.e("ClickedAssetActivity", "Price cannot be formmated!");
+            }
+
             price.setText("$" + priceString);
 
             pc1h.setText("1H: " + item.getPercentChange1h());

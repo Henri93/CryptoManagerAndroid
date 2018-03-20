@@ -92,8 +92,15 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
         Asset item = mItems.get(position);
         holder.nameTv.setText(item.getName());
 
-        String priceString = String.format("%.3f", Double.parseDouble(item.getPriceUsd()));
-        priceString = numberFormat.format(Double.parseDouble(priceString));
+        String priceString = "0.00";
+
+        try {
+            priceString = String.format("%.3f", Double.parseDouble(item.getPriceUsd()));
+            priceString = numberFormat.format(Double.parseDouble(priceString));
+        } catch (NumberFormatException e){
+
+        }
+
         holder.priceTv.setText("$" + priceString);
 
         holder.tickerTv.setText(item.getSymbol());

@@ -5,7 +5,6 @@
       <module fileurl="file://$PROJECT_DIR$/CryptoManager.iml" filepath="$PROJECT_DIR$/CryptoManager.iml" />
       <module fileurl="file://$PROJECT_DIR$/CryptoManagerAndroid.iml" filepath="$PROJECT_DIR$/CryptoManagerAndroid.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
 </project>
