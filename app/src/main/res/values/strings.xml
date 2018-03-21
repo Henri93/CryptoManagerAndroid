@@ -3,6 +3,7 @@
     <string name="action_settings">Settings</string>
 
     <array name="sorts">
+        <item>Liked</item>
         <item>Rank</item>
         <item>1H Price Change</item>
         <item>24H Price Change</item>

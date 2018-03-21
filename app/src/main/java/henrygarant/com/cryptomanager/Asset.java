@@ -60,7 +60,9 @@ public class Asset implements Comparable<Asset> {
     private String percentChange7d;
     @SerializedName("last_updated")
     @Expose
+
     private String lastUpdated;
+    private boolean liked;
 
     public String getId() {
         return id;
@@ -182,6 +184,14 @@ public class Asset implements Comparable<Asset> {
         this.lastUpdated = lastUpdated;
     }
 
+    public boolean getLiked(){
+        return liked;
+    }
+
+    public void setLiked(boolean like){
+        liked = like;
+    }
+
     public static void percentColor(Context mContext, TextView tv){
         if(tv.getText().toString().contains("-")){
             //down = red
@@ -196,7 +206,7 @@ public class Asset implements Comparable<Asset> {
     public int compareTo(@NonNull Asset o) {
         Double thisPrice = Double.parseDouble(this.getPriceUsd());
         Double thatPrice = Double.parseDouble(o.getPriceUsd());
-        return Double.compare(thatPrice, thatPrice);
+        return Double.compare(thatPrice, thisPrice);
     }
 
     public static Comparator<Asset> rankComparator = new Comparator<Asset>() {
@@ -235,20 +245,31 @@ public class Asset implements Comparable<Asset> {
         }
     };
 
-    public static Comparator<Asset> getComparator(long id) {
-        Comparator<Asset> comparator;
-        if (id == 1) {
-            comparator = Asset.hourPriceChangeComparator;
-        } else if (id == 2) {
-            comparator = Asset.dayPriceChangeComparator;
-        } else if (id == 3) {
-            comparator = Asset.weekPriceChangeComparator;
-        } else {
-            comparator = Asset.rankComparator;
+    public static Comparator<Asset> likeComparator = new Comparator<Asset>() {
+        @Override
+        public int compare(Asset a1, Asset a2) {
+
+            Boolean thisChange = a1.getLiked();
+            Boolean thatChange = a2.getLiked();
+            return Boolean.compare(thatChange, thisChange);
+
+
         }
-        currentComparator = comparator;
-        return currentComparator;
+    };
+
+    public static Comparator<Asset> getComparator(long id) {
+        if (id == 1) {
+            return Asset.rankComparator;
+        } else if (id == 2) {
+            return Asset.hourPriceChangeComparator;
+        } else if (id == 3) {
+            return Asset.dayPriceChangeComparator;
+        } else if(id == 4){
+            return Asset.weekPriceChangeComparator;
+        }
+
+        return Asset.likeComparator;
     }
 
-    public static Comparator<Asset> currentComparator = Asset.rankComparator;
+
 }

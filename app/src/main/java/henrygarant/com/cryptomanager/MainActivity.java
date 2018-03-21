@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private Context mContext;
     public static boolean didInit;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String sort = parent.getItemAtPosition(position).toString();
-                Log.d("Main Activity", "sort changed to " + sort);
+                Log.d("Main Activity", "sort changed to " + sort + ":" + id);
                 mAdapter.sortAnswers(id);
             }
 
@@ -158,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
         // ...
         loadAnswers();
         // Load complete
-        Toast.makeText(mContext, "Assets Loaded", Toast.LENGTH_SHORT);
         Log.d("Main Activity", "assets loaded");
         onItemsLoadComplete();
     }

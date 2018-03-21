@@ -4,12 +4,14 @@ import android.content.Context;
 import android.graphics.drawable.PictureDrawable;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.GenericRequestBuilder;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -21,6 +23,7 @@ import com.cloudinary.android.MediaManager;
 import java.io.InputStream;
 import java.text.NumberFormat;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -29,6 +32,8 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
     private List<Asset> mItems;
     private Context mContext;
     private PostItemListener mItemListener;
+    private DatabaseHelper mDbHelper;
+    private Comparator<Asset> currentComparator = Asset.getComparator(0);
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
@@ -39,6 +44,7 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
         public TextView pc24HTv;
         public TextView pc7DTv;
         public ImageView image;
+        public LottieAnimationView likeButton;
 
         PostItemListener mItemListener;
 
@@ -52,6 +58,8 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
             pc24HTv = (TextView) itemView.findViewById(R.id.pc_24h);
             pc7DTv = (TextView) itemView.findViewById(R.id.pc_7d);
             image = (ImageView) itemView.findViewById(R.id.image);
+            likeButton = (LottieAnimationView) itemView.findViewById(R.id.likeButton);
+
 
             this.mItemListener = postItemListener;
             itemView.setOnClickListener(this);
@@ -69,6 +77,7 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
         mItems = posts;
         mContext = context;
         mItemListener = itemListener;
+        mDbHelper = new DatabaseHelper(mContext);
 
     }
 
@@ -85,11 +94,11 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(AssetAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(final AssetAdapter.ViewHolder holder, int position) {
 
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
 
-        Asset item = mItems.get(position);
+        final Asset item = mItems.get(position);
         holder.nameTv.setText(item.getName());
 
         String priceString = "0.00";
@@ -108,6 +117,43 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
         holder.pc1HTv.setText("1h: " + item.getPercentChange1h());
         holder.pc24HTv.setText("24h: " + item.getPercentChange24h());
         holder.pc7DTv.setText("7d: " + item.getPercentChange7d());
+
+        if(!mDbHelper.checkIfLiked(item.getSymbol())){
+            holder.likeButton.setAnimation(R.raw.notliked);
+            item.setLiked(false);
+        }else{
+            holder.likeButton.setAnimation(R.raw.liked);
+            item.setLiked(true);
+        }
+
+        holder.likeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!mDbHelper.checkIfLiked(item.getSymbol())){
+                    holder.likeButton.setAnimation(R.raw.liked);
+                    holder.likeButton.playAnimation();
+                    //add to db
+                    boolean result = mDbHelper.addData(item.getSymbol());
+                    if(result){
+                        Log.d("AssetAdpater", "Succesfully liked asset!");
+                        item.setLiked(true);
+                    }else{
+                        Log.d("AssetAdpater", "Failed to like asset!");
+                    }
+                }else{
+                    holder.likeButton.setAnimation(R.raw.notliked);
+                    holder.likeButton.playAnimation();
+                    //remove from db
+                    boolean result = mDbHelper.removeLike(item.getSymbol());
+                    if(result){
+                        Log.d("AssetAdpater", "Succesfully unliked asset!");
+                        item.setLiked(false);
+                    }else{
+                        Log.d("AssetAdpater", "Failed to unlike asset!");
+                    }
+                }
+            }
+        });
 
         //set color based on went up or down
         Asset.percentColor(mContext, holder.pc1HTv);
@@ -145,14 +191,33 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
 
     public void updateAnswers(List<Asset> items) {
         mItems = items;
-        Collections.sort(mItems, Asset.currentComparator);
+        refreshLikes();
+        Collections.sort(mItems, currentComparator);
         notifyDataSetChanged();
     }
 
     public void sortAnswers(long id) {
+        Log.d("AssetAdpater", "Sorting based on "+ id);
+        if(id == 0){
+            Log.d("AssetAdpater", "Refreshing Likes");
+            refreshLikes();
+        }
+        Collections.sort(mItems, Asset.getComparator(0));
         Collections.sort(mItems, Asset.getComparator(id));
+        currentComparator = Asset.getComparator(id);
         notifyDataSetChanged();
     }
+
+    private void refreshLikes() {
+        for(Asset item : mItems){
+            if(!mDbHelper.checkIfLiked(item.getSymbol())){
+                item.setLiked(false);
+            }else{
+                item.setLiked(true);
+            }
+        }
+    }
+
 
     private Asset getItem(int adapterPosition) {
         return mItems.get(adapterPosition);
